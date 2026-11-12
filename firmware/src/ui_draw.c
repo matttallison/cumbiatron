@@ -1499,6 +1499,12 @@ static void confirm_text(char *a, char *b)
     case CF_CLEAR_SONG:
         str_cpy(a, "CLEAR SONG ORDER?", 24);
         break;
+    case CF_BUILD_SONG:                              /* (Cumbia) cumbia_song.c */
+        str_cpy(a, "BUILD ", 24);
+        str_cpy(a + str_len(a), cumbia_style_name(k), 24u - str_len(a));
+        str_cpy(a + str_len(a), " SONG?", 24u - str_len(a));
+        str_cpy(b, "REPLACES PROJECTS A-D", 24);
+        break;
     case CF_INIT_SOUND:
         str_cpy(a, "INITIALIZE T1 SOUND?", 24);       /* (1.8: the track) */
         a[12] = (char)('1' + k % NTRK);

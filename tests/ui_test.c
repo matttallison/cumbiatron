@@ -157,6 +157,7 @@ static struct { uint32_t stage; } felucca_dbg;
 #include "../firmware/src/ui_layer.c"
 #include "../firmware/src/upreset.c"
 #include "../firmware/src/project.c"
+#include "../firmware/src/cumbia_song.c"
 
 static int check(const char *what, int ok)
 {
@@ -645,7 +646,7 @@ static int test_patterns(void)
     memset(up_rec(6)->note, 0, sizeof up_rec(6)->note);   /* .. a record with no pattern: not listed */
     bad += check("user presets with a pattern are listed after the factory ones", pat_count() == NFACT_PAT + 1u);
     track_defaults_steps(t);
-    turn(EN_K1, 20);                              /* (to the end of the list) */
+    turn(EN_K1, 60);                              /* (to the end of the list: Cumbia adds 3 phrases, 16 grooves) */
     press(B_OCTUP);
     bad += check("LOAD U06: its 16 steps, LEN 16 (at most), DIV and SWING", msg_is("LOADED U06 UPAT") && t->step[0].note[0] == 40 &&
                  t->step[3].note[0] == 43 && !t->step[30].n && t->p[P_SLEN] == 16 && t->p[P_SDIV] == 2 && t->p[P_SSWING] == 40);

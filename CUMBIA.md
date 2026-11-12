@@ -60,6 +60,14 @@ Drum grooves (any kit; on CUMB / HANAN the lanes are the instruments above):
 | 22 AMAZONIA | Peru: the cowbell anchoring the offbeats, the güiro the subdivisions, simple drums | 12 |
 | 23 RASPA | güiro and kick, HananCumbia style | 18 |
 | 24 EDITADA | claps on 2 and 4 and a timbal fill | 0 |
+| 25 PORRO | Colombia's porro: the tambora's syncopation, the band's cymbal on 2 and 4 | 10 |
+| 26 VALLENAT | vallenato: the guacharaca's sixteenths, the caja answering | 15 |
+| 27 CHICHA | Peru's chicha: timbal on 2 and 4, the bongó busy, the cowbell on the offbeats | 12 |
+| 28 NORTENA | Mexico's norteña: kick on 1 and 3, the snare on every offbeat eighth | 0 |
+| 29 TECNO | tecnocumbia: drum-machine kick and clap, cowbell in eighths | 0 |
+| 30 REBAJADA | rebajada: sonidera slowed down (68..76 BPM), heavy | 35 |
+| 31 DIGITAL | digital cumbia: a pushed kick, claps on 2 and 4 | 0 |
+| 32 TROPICAL | Mexico's cumbia tropical: straight güiro, timbal on 2 and 4, the congas' tumbao | 10 |
 
 A groove sets the **song's** swing (GLO SWG), not its track's: one feel for every track, as a groove extracted from a
 recording is applied to all of them. Keep it small (100 is 70:30; 12..40 is the 52..58 % range producers use).
@@ -69,6 +77,25 @@ cowbell until it sits.
 Tempos: Colombian cumbia around 100..115 BPM, sonidera 100..125, villera around 110..130, amazónica 90..110.
 
 Performance (FX held, Felucca's): ECHO THROW, REV THROW, REPEAT, TAPE STOP, OCT DN, the filters: the editada tricks.
+
+## SONG > BUILD: a whole song in a style
+
+On GLO > SONG the white keys E4 .. G5 build a song: VILLERA, COLOMBIA, VALLENATO, SONIDERA, REBAJADA, SANTAFE, CHICHA,
+AMAZONIA, NORTENA, DIGITAL (an empty song lights them). A dialog asks first: it replaces PROJECT slots A..D. Then:
+
+- the sounds: T1 bass, T2 keys, T3 lead, T4 drums, the style's (VILLERA: BAJO PESAD, CUMBIA ORG, BUSY BOY, the HANAN
+  kit; COLOMBIA: ACORDEON and FLAUTA as the gaita; CHICHA / AMAZONIA: FARFISA or VOX ORG and GUITARRA; ..), its tempo
+  and its swing for the whole song
+- four sections, saved as projects <STYLE> A..D: A the verse (groove, bass, chucks, the lead resting), B the chorus
+  (the cowbell up, the lead's hook), C the break (alegre / quinto, timbal, the lead's solo), D the end (a timbal roll,
+  everything on the root)
+- the order: intro (drums, then the bass) - verse - chorus - verse - chorus - bridge (percussion and bass) - break -
+  a bar of the roll - chorus - outro - the end: 66 bars, and it plays at once
+
+The bass is the held quarter against short eighths, the shaker against the bass, the lead's short notes against held
+ones; the harmony i - V (I - V for VALLENATO and NORTENA). The lead's notes are drawn anew each build (an arpeggio on
+the chord, a chromatic step into a held note now and then; the solo on the pentatonic scale). Everything is then
+ordinary Felucca: edit the sections (load a project, change it, save it back), the order on the SONG page, the sounds.
 
 ## Building
 

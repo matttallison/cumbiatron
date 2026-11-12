@@ -560,6 +560,11 @@ static void song_keys(uint32_t notes)
     uint32_t k;
     for (k = 0; k < 27u; k++) {
         int32_t s = (notes >> k) & 1u ? song_key(k) : -1;
+        if (((notes >> k) & 1u) && cs_style_of_key(k) >= 0) {   /* (Cumbia) E4 .. G5: BUILD a song in a style */
+            if (chain_busy()) { ui_message("STOP FIRST"); return; }
+            confirm_open(CF_BUILD_SONG, (uint32_t)cs_style_of_key(k));
+            return;
+        }
         if (s < 0)
             continue;
         if (chain_busy()) { ui_message("STOP TO EDIT"); return; }
@@ -577,7 +582,12 @@ static void song_keys(uint32_t notes)
 /* the key LEDs of SONG: the key of the selected cell's slot (none for "-" and on + ADD) */
 static uint32_t song_leds(void)
 {
-    uint32_t k, s;
+    uint32_t k, s, m = 0;
+    if (!chain_config.count) {                          /* (Cumbia) an empty song: the BUILD keys lit */
+        for (k = 0; k < 27u; k++)
+            m |= cs_style_of_key(k) >= 0 ? 1u << k : 0u;
+        return m;
+    }
     if (ui.song_row >= chain_config.count || (s = chain_config.row[ui.song_row].slot[ui.song_trk % NTRK]) >= 4u)
         return 0;
     for (k = 0; k < 27u; k++)
@@ -1677,6 +1687,8 @@ static void ui_input(void)
                     if (ui.song_row > chain_config.count) ui.song_row = chain_config.count;
                     ui_message("SECTION DELETED");
                 }
+            } else if (kind == CF_BUILD_SONG) {
+                cumbia_build(ui.confirm_trk);
             } else if (kind == CF_CLEAR_SONG) {
                 if (!chain_busy()) { chain_defaults(&chain_config); ui.song_row = 0; ui_message("SONG CLEARED"); }
             } else if (kind == CF_INIT_SOUND) {

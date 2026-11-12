@@ -252,6 +252,32 @@ static const struct {
     {"EDITADA", {G_K | G_R, 0, G_G, G_G, G_C | G_R, 0, G_TU | G_G, G_G,
                  G_K | G_R, 0, G_G, G_Q | G_G, G_C | G_R, G_T, G_T | G_TU, G_T},
      {G_K, 0, 0, 0, G_C, 0, G_TU, 0, G_K, 0, 0, 0, G_C, 0, G_T, G_T}, 0},
+    /* Colombia's porro: the tambora's syncopation (1, the "and" of 2), the band's cymbal (TIMBL) on 2 and 4 */
+    {"PORRO", {G_K | G_G, 0, G_G, G_Q, G_T | G_G, 0, G_K | G_G, 0, G_K | G_G, 0, G_G, G_Q, G_T | G_G, 0, G_K | G_G, 0},
+     {G_K, 0, 0, 0, G_T, 0, G_K, 0, G_K, 0, 0, 0, G_T, 0, G_K, 0}, 10},
+    /* vallenato: the guacharaca's chuku-chuku sixteenths, the caja (TUMBA, QUINT) answering */
+    {"VALLENAT", {G_K | G_G | G_TU, G_G, G_G, G_G | G_Q, G_G, G_G, G_G | G_Q, G_G | G_Q,
+                  G_K | G_G | G_TU, G_G, G_G, G_G | G_Q, G_G, G_G, G_G | G_Q, G_G | G_Q},
+     {G_K | G_G, 0, 0, G_G, G_G, 0, 0, G_G, G_K | G_G, 0, 0, G_G, G_G, 0, 0, G_G}, 15},
+    /* Peru's chicha: timbal on 2 and 4, the bongó (QUINT) busy, the güiro, the cowbell on the offbeats */
+    {"CHICHA", {G_K | G_G, G_Q, G_B | G_G, G_Q, G_T | G_G, G_Q, G_B | G_G, G_Q,
+                G_K | G_G, G_Q, G_B | G_G, G_Q, G_T | G_G, G_Q, G_B | G_G, G_Q | G_TU},
+     {G_K, 0, G_B, 0, G_T, 0, G_B, 0, G_K, 0, G_B, 0, G_T, 0, G_B, G_TU}, 12},
+    /* Mexico's norteña: the bass oom on 1 and 3, the snare (CLAP) on every offbeat eighth: the pah */
+    {"NORTENA", {G_K, 0, G_C, 0, G_G, 0, G_C, 0, G_K, 0, G_C, 0, G_G, 0, G_C, 0},
+     {G_K, 0, G_C, 0, 0, 0, G_C, 0, G_K, 0, G_C, 0, 0, 0, G_C, 0}, 0},
+    /* tecnocumbia: the drum machine, kick and clap, the güiro on the offbeats, the cowbell in eighths */
+    {"TECNO", {G_K | G_B, 0, G_G | G_B, 0, G_C | G_B, 0, G_G | G_B, G_TU, G_K | G_B, 0, G_G | G_B, 0, G_C | G_B, 0, G_G | G_B, G_TU},
+     {G_K, 0, 0, 0, G_C, 0, 0, 0, G_K, 0, 0, 0, G_C, 0, 0, 0}, 0},
+    /* rebajada (Monterrey): sonidera slowed down (play it at 68..76 BPM), heavy, laid back */
+    {"REBAJADA", {G_K | G_R, 0, G_G, G_G, G_T | G_R, G_Q, G_G, G_TU, G_K | G_R, 0, G_G, G_G, G_T | G_R, G_Q, G_G, G_TU},
+     {G_K, 0, 0, 0, G_T, 0, 0, G_TU, G_K, 0, 0, 0, G_T, 0, 0, G_TU}, 35},
+    /* digital cumbia: the kick pushed (on 1, the "a" of 2, 3), claps on 2 and 4, the güiro in eighths */
+    {"DIGITAL", {G_K | G_R | G_G, 0, G_G, 0, G_C | G_G, 0, G_TU | G_G, G_K, G_K | G_R | G_G, 0, G_G, 0, G_C | G_G, 0, G_TU | G_G, 0},
+     {G_K, 0, 0, 0, G_C, 0, G_TU, 0, G_K, 0, 0, 0, G_C, 0, G_TU, 0}, 0},
+    /* Mexico's cumbia tropical (grupera): straight güiro, timbal on 2 and 4, the congas' tumbao */
+    {"TROPICAL", {G_K | G_G, 0, G_G, G_Q, G_T | G_G, 0, G_TU | G_G, G_TU, G_K | G_G, 0, G_G, G_Q, G_T | G_G, 0, G_TU | G_G, G_TU},
+     {G_K, 0, 0, 0, G_T, 0, G_TU, 0, G_K, 0, 0, 0, G_T, 0, G_TU, 0}, 10},
 };
 #undef G_K
 #undef G_T

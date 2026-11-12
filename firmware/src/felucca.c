@@ -118,6 +118,7 @@ static __attribute__((noinline)) int c1_wait(void) { return fm1_cpu1_wait(); }  
 #endif
 #include "upreset.c"             /* user presets (RAM mirror; flash with FELUCCA_FLASH) */
 #include "project.c"
+#include "cumbia_song.c"         /* (Cumbia) SONG > BUILD: a whole song in a cumbia style */
 #if FELUCCA_OTA
 #include "../bsp/chip/ota.c"
 #include "ota_hw.c"
