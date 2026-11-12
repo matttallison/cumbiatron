@@ -1,0 +1,63 @@
+# Cumbia: build the firmware on GitHub (as zvenson/fm1-build does: JieLi's toolchain from pkgman.jieliapp.com, the
+# AC79 SDK from gitee at a fixed tag), without the attestation (a private repository). The package is the run's
+# artifact; a tag v* also attaches it to a release.
+name: build
+on:
+  push:
+    branches: [cumbia, main]
+    tags: ['v[0-9]*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install Pillow fonttools
+      - name: JieLi Linux toolchain
+        run: |
+          mkdir -p ~/.jieli
+          curl -fL --retry 3 https://pkgman.jieliapp.com/s/linux-toolchain | tar -xJ -C ~/.jieli
+          TC="$(ls -d ~/.jieli/jieli-linux-toolchains-* | sort | tail -1)"
+          ln -sfn "$(basename "$TC")" ~/.jieli/toolchain
+          echo "JIELI_TOOLCHAIN=$HOME/.jieli/toolchain" >> "$GITHUB_ENV"
+      - name: JieLi AC79 SDK
+        run: |
+          for i in 1 2 3; do
+            git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 \
+                https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git ~/fw-AC79_AIoT_SDK && break
+            rm -rf ~/fw-AC79_AIoT_SDK; sleep 20
+          done
+          test -d ~/fw-AC79_AIoT_SDK
+          echo "AC79_SDK=$HOME/fw-AC79_AIoT_SDK" >> "$GITHUB_ENV"
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            v=${GITHUB_REF_NAME#v}
+            ./build.sh --release "$v"
+            cp "build/felucca-$v.fwsc" "out/cumbia-$v.fwsc"
+          else
+            ./build.sh
+            cp build/felucca.fwsc out/cumbia.fwsc
+          fi
+          sha256sum out/* | tee out/SHA256SUMS
+      - name: Tests
+        run: sh tests/run_tests.sh
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cumbia-firmware
+          path: out/*
+      - if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
