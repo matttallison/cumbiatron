@@ -105,7 +105,7 @@ drums/kit_DEEP 2ea94ee6260bafc8
 drums/kit_TIGHT 76257d66faea703c
 drums/kit_PERC 7fe9f8ae26b89f20
 drums/kit_CUMB 2b97994c191d4a3c
-drums/kit_HANAN feea22cd03af95d8
+drums/kit_HANAN a626570498b19618
 mode/ANALOG/POLY 37fb068bc75b2f5c
 mode/ANALOG/MONO 4904e99e3020a8b0
 mode/ANALOG/LEGATO 8fff1c8dc8b7ded8

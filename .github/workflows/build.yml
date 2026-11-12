@@ -50,6 +50,19 @@ jobs:
             cp build/felucca.fwsc out/cumbia.fwsc
           fi
           sha256sum out/* | tee out/SHA256SUMS
+      - name: The package on the builds branch (fetchable with git)
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha=$(git rev-parse --short HEAD)
+          mkdir -p /tmp/pub && cp out/* /tmp/pub/
+          cd /tmp/pub
+          git init -q -b builds
+          git config user.name "cumbia build"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "build of $sha"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" builds
       - name: Tests
         run: sh tests/run_tests.sh
         continue-on-error: true

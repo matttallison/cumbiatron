@@ -687,7 +687,8 @@ static void dv_setup_kit(dv_coef_t *c, const dv_param_t *p)
     }
 }
 
-static void dv_setup(dv_coef_t *c, const dv_param_t *p)
+/* (Cumbia) kept out of the render: it runs only when a parameter moves */
+static __attribute__((noinline)) void dv_setup(dv_coef_t *c, const dv_param_t *p)
 {
     if (DV_KITOF(p->type) - 1u < DV_NKIT)
         dv_setup_kit(c, p);
@@ -943,9 +944,10 @@ static __attribute__((noinline)) void dv_pcm_run(const dv_coef_t *c, dv_voice_t 
     const uint8_t *d = CPCM_DATA + c->span[0];
     uint32_t i, pos = v->ph[0], len = c->span[1], kb = v->choke ? c->kb[1] : c->kb[0];
     int32_t q0 = v->q[0], q1 = (int32_t)(((uint32_t)q0 >> 14) * kb >> 2), lp = v->s[0], a = c->hp, sn = v->s[1];
+    int32_t e = q0 >> 15, de = ((q1 >> 15) - e) / (int32_t)(n ? n : 1u);   /* the level's ramp over the block, Q15 */
     for (i = 0; i < n; i++) {
         uint32_t k = pos >> 16;
-        int32_t s0, s1, x, e;
+        int32_t s0, s1, x, g;
         if (k + 1u >= len) {
             v->live = 0;
             for (; i < n; i++)
@@ -956,10 +958,10 @@ static __attribute__((noinline)) void dv_pcm_run(const dv_coef_t *c, dv_voice_t 
         s1 = CPCM_ULAW[d[k + 1u]];
         x = s0 + (((s1 - s0) * (int32_t)((pos >> 1) & 0x7FFFu)) >> 15);
         lp += ((x - lp) * a) >> 15;
-        e = (q0 >> 15) + ((((q1 >> 15) - (q0 >> 15)) * (int32_t)i) / (int32_t)n);   /* Q15 */
-        e = (e * ((65536 + sn) >> 2)) >> 14;             /* SNAP's attack (32-bit products) */
+        g = (e * ((65536 + sn) >> 2)) >> 14;             /* SNAP's attack (32-bit products) */
         sn = ((sn >> 1) * (int32_t)c->k[0]) >> 14;
-        y[i] = (lp * e) >> 15;
+        e += de;
+        y[i] = (lp * g) >> 15;
         pos += c->inc[0];
     }
     v->ph[0] = pos;
