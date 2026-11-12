@@ -1,3 +1,8 @@
+# Cumbia (Felucca fork)
+
+This is a fork of Felucca set up for cumbia: Busy Boy leads, accordions, organs, flutes, a heavy bass, two cumbia
+drum kits (one synthesized, one recorded) and grooves. See [CUMBIA.md](CUMBIA.md). Everything below is Felucca's own README.
+
 # Felucca
 
 [![License: GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue.svg)](LICENSE)

@@ -25,6 +25,7 @@ static uint8_t eng_mem_owner[NPART];       /* engine index + 1 whose state is in
 #define ENG_MEM(p) ((void *)eng_mem[p].b)  /* part p's region (p < NPART) */
 #define ENG_MEM_FITS(name, size) _Static_assert((size) <= ENG_MEM_PART, name " state over ENG_MEM_PART")
 
+#define CUMBIA_PRESETS 1      /* the Cumbia presets appended to ANALOG and WHEEL (their XP: core.h P_*) */
 #include "../engines/src/eng_analog.c"   /* Felucca-Engines (MIT): ANALOG LOFI TRIO WHEEL NOISE */
 #include "../engines/src/eng_phase.c"   /* Felucca-Engines (MIT): PHASE */
 #include "../engines/src/eng_lofi.c"
@@ -195,9 +196,79 @@ static const struct {
      * now that the arpeggiator is the track's and a preset no longer switches it on */
     {"ARP", {48, 51, 55, 60, 63, 67, 72, 75, 48, 51, 55, 60, 63, 67, 72, 75},       /* 13 */
      {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0}},
+    /* Cumbia (i - V in A minor): the bass a held quarter on 1 and 3, two short eighths on 2 and 4, the release the
+     * downbeats resolve; the organ's chucks on the offbeats; a lead of short notes and held ones (an arpeggio, a
+     * chromatic step). Their GATE: PHRASE_GATE below (the held notes are ties, the rest short) */
+    {"CUMB BAS", {33, 0, 0, 0, 40, 0, 40, 0, 28, 0, 0, 0, 40, 0, 40, 0},             /* 14 */
+     {1, T_, T_, T_, 0, 0, 0, 0, 1, T_, T_, T_, 0, 0, 0, 0}},
+    {"CUMB ORG", {0, 0, 57, 0, 0, 0, 57, 0, 0, 0, 52, 0, 0, 0, 52, 0},             /* 15 */
+     {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}},
+    {"CUMB LD", {69, 72, 76, 0, 75, 76, 0, 72, 69, 0, 0, 68, 69, 0, 64, 0},         /* 16 */
+     {1, 0, 0, T_, 0, 0, 0, 0, 1, T_, T_, 0, 0, 0, 0, 0}},
 };
 #undef T_
 #define NPATTERNS (sizeof PATTERNS / sizeof PATTERNS[0])
+
+/* Cumbia: factory drum grooves (SAVE > PHRASES, after PATTERNS[]): the lanes struck on steps 1..16 (bit l: lane l, as
+ * the DRUM grid: KICK TIMBL CLAP GUIRO RASPA TUMBA QUINT CAMPN on KIT CUMB) and their accents. Loaded as a user
+ * preset's grid (ui.c load_grid16); on another kit the same lanes play its own pieces. Names: at most 8 characters */
+#define G_K 1u
+#define G_T 2u
+#define G_C 4u
+#define G_G 8u
+#define G_R 16u
+#define G_TU 32u
+#define G_Q 64u
+#define G_B 128u
+static const struct {
+    const char *name;
+    uint8_t hit[16], acc[16];
+    uint8_t swing;               /* the GLOBAL SWG it sets: one feel for every track (a little: 100 is 70:30) */
+} GROOVES[] = {
+    /* the villera way (and Bombón asesino's): the kick heavy on 1 and 3, the shaker (MARAC; CUMB's CLAP) only on 2 and 4,
+     * against the bass; the tumba answering. Little else: the weight is the kick and the bass */
+    {"BOMBON", {G_K, 0, 0, 0, G_C, 0, 0, G_TU, G_K, 0, 0, 0, G_C, 0, 0, G_TU},
+     {G_K, 0, 0, 0, G_C, 0, 0, 0, G_K, 0, 0, 0, G_C, 0, 0, 0}, 0},
+    {"VILLERA", {G_K | G_R, 0, G_B | G_G, G_Q | G_G, G_C | G_R, 0, G_TU | G_G, G_G,
+                 G_K | G_R, 0, G_B | G_G, G_Q | G_G, G_C | G_R, 0, G_TU | G_G, G_T},
+     {G_K, 0, 0, 0, G_C, 0, G_TU, 0, G_K, 0, 0, 0, G_C, 0, G_TU, 0}, 0},
+    /* the Colombian root: tambora (KICK, the TIMBL its rim), llamador on the offbeats (TUMBA), alegre (QUINT), the
+     * guache's sixteenths (GUIRO) leaning on the beat, the long scrape (RASPA) */
+    {"COLOMBIA", {G_K | G_G | G_R, G_G, G_TU | G_G, G_Q | G_G, G_G | G_R, G_G, G_TU | G_G, G_G,
+                  G_K | G_G | G_R, G_G, G_TU | G_G, G_Q | G_G, G_T | G_G | G_R, G_Q | G_G, G_TU | G_G, G_G},
+     {G_K | G_G, 0, G_TU, 0, G_G, 0, G_TU, 0, G_K | G_G, 0, G_TU, G_Q, G_G, 0, G_TU, 0}, 22},
+    {"SANTAFE", {G_K | G_R | G_B, 0, G_Q | G_G, G_G, G_R | G_B, 0, G_TU | G_G, G_TU | G_G,
+                 G_K | G_R | G_B, 0, G_Q | G_G, G_G, G_R | G_B, 0, G_TU | G_G, G_T | G_TU | G_G},
+     {G_K, 0, G_Q, 0, 0, 0, G_TU, 0, G_K, 0, G_Q, 0, 0, 0, G_TU, G_T}, 15},
+    {"SONIDERA", {G_K | G_R | G_B, 0, G_G, G_G, G_T | G_R, G_Q, G_G, G_TU | G_G,
+                  G_K | G_R | G_B, 0, G_G, G_G, G_T | G_R, G_Q, G_G, G_TU | G_G},
+     {G_K, 0, 0, 0, G_T, 0, 0, G_TU, G_K, 0, 0, 0, G_T, 0, 0, G_TU}, 35},
+    /* Peru, the Amazon: the cowbell anchors the offbeats, the güiro the subdivisions, the drums simple */
+    {"AMAZONIA", {G_K | G_G, 0, G_B | G_G, G_Q, G_R, 0, G_B | G_G | G_TU, G_G,
+                  G_K | G_G, 0, G_B | G_G, G_Q, G_R, 0, G_B | G_G | G_TU, G_T},
+     {G_K, 0, G_B, 0, 0, 0, G_B, 0, G_K, 0, G_B, 0, 0, 0, G_B, G_T}, 12},
+    {"RASPA", {G_K | G_R, 0, G_G, G_G, G_R, 0, G_G, G_G, G_K | G_R, 0, G_G, G_G, G_R, 0, G_G, G_G},
+     {G_K | G_R, 0, 0, 0, G_R, 0, 0, 0, G_K | G_R, 0, 0, 0, G_R, 0, 0, 0}, 18},
+    {"EDITADA", {G_K | G_R, 0, G_G, G_G, G_C | G_R, 0, G_TU | G_G, G_G,
+                 G_K | G_R, 0, G_G, G_Q | G_G, G_C | G_R, G_T, G_T | G_TU, G_T},
+     {G_K, 0, 0, 0, G_C, 0, G_TU, 0, G_K, 0, 0, 0, G_C, 0, G_T, G_T}, 0},
+};
+#undef G_K
+#undef G_T
+#undef G_C
+#undef G_G
+#undef G_R
+#undef G_TU
+#undef G_Q
+#undef G_B
+#define NGROOVES (sizeof GROOVES / sizeof GROOVES[0])
+#define NFACT_PAT (NPATTERNS + NGROOVES)   /* the factory phrases: PATTERNS[], then GROOVES[] */
+typedef char cumbia_pat0_fits[NPATTERNS == 16u ? 1 : -1];   /* the kits suggest PAT(17): BOMBON */
+/* (Cumbia) the GATE a factory phrase sets (0: the track's own): the Cumbia phrases' short notes */
+static uint32_t phrase_gate(uint32_t n)   /* GATE 128 = a whole step: the bass's eighths 56, the chucks 40, the lead 72 */
+{
+    return n == 13u ? 56u : n == 14u ? 40u : n == 15u ? 72u : 0u;
+}
 
 /* the parts at power-on (engine, preset, PATTERNS[n - 1] in the sequencer, 0 = empty: all are): bass, pad, lead, drums */
 static const uint8_t TRK_DEF[NPART][3] = {{0, 4, 0}, {ENGI_FM6, 4, 0}, {3, 0, 0}, {ENGI_DRUM, 0, 0}}; /* ANALOG ACID,

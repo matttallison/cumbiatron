@@ -76,7 +76,9 @@ enum {
 };
 /* a lane of a model kit as a type: the kit (1..DV_NKIT) in the high 4 bits, the lane in the low 3 (Felucca's own
  * types: 0 above). Its run (the DVT_* it plays through) is the kit's (DV_KIT) */
-#define DV_NKIT 8                                        /* (1.5.6, #216: DEEP TIGHT PERC after 77) */
+#define DV_NKIT 10                                       /* (1.5.6, #216: DEEP TIGHT PERC after 77; Cumbia: CUMB HANAN) */
+#define DVR_PCM 15                                       /* (Cumbia) a model kit lane's run: a recorded hit (CPCM, HANAN) */
+#include "cumbia_pcm.h"                                  /* (build/gen: tools/gen_cumbia_pcm.py) */
 #define DV_KITOF(t) ((uint32_t)(t) >> 4)
 #define DV_KTYPE(kit, lane) ((uint8_t)(((kit) << 4) | (lane)))
 
@@ -187,7 +189,7 @@ typedef struct {
     int16_t v[13];
 } dv_kit_t;
 /* the accent per kit: + (x / 16384) per accent step (75: +4 dB at full, as Felucca's own) */
-static const uint8_t DV_KIT_ACC[DV_NKIT] = {120, 45, 100, 40, 40, 80, 60, 70};
+static const uint8_t DV_KIT_ACC[DV_NKIT] = {120, 45, 100, 40, 40, 80, 60, 70, 80, 70};
 static const dv_kit_t DV_KIT[DV_NKIT][DV_NLANE] = {
     {   /* 80 */
         /* deep sine, a small drop, long decay */
@@ -329,6 +331,38 @@ static const dv_kit_t DV_KIT[DV_NKIT][DV_NLANE] = {
         {DVT_CLAVE, 32, 1568, 149, 2131, {84, 28000, 10000, 6348, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
         /* 66's bell: sines 830 / 613 Hz */
         {DVT_RIM, 40, 1280, 60, 3629, {-84, 30000, 7500, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    },
+    {   /* CUMB (Cumbia): kick, timbal, clap, güiro and its long scrape, tumba and quinto congas, campana. After
+         * HananCumbia's four (kick, güiro, cowbell, conga with pitch: TUNE moves them) */
+        /* 66's kick: 64 Hz, a slow rise */
+        {DVT_PUNCH, 64, 570, 119, 4353, {0, 100, 0, 0, 0, 0, 0, 4096, 40, 0, 0, 0, 0}},
+        /* the timbal: shells 450 / 640 Hz, a ring, less noise than a snare, tau 20 ms */
+        {DVT_SNARE, 40, 1091, 80, 15460, {107, 0, 100, 160, 9000, 3000, 1907, 8192, 30, 12000, 14000, 16000, 1828}},
+        /* 80's clap: band 1 kHz, 3 teeth */
+        {DVT_CLAP, 48, 1331, 316, 13485, {0, 4096, 1678, 0, 2000, 30000, 35, 441, 3, 0, 0, 0, 0}},
+        /* the güiro: noise through a band at 5 kHz, short */
+        {DVT_HATC, 45, 1777, 150, 5930, {1777, 1400, 1740, 2042, 0, 0, 9000, 3, 6, 0, 0, 0, 0}},
+        /* .. its long scrape */
+        {DVT_HATO, 63, 1777, 420, 4910, {1777, 1400, 1740, 2042, 0, 0, 9000, 3, 6, 0, 0, 0, 0}},
+        /* the tumba: 66's low conga 157 Hz */
+        {DVT_CONGA, 53, 819, 94, 5803, {0, 50, 1523, 0, 1500, 0, 0, 0, 0, 0, 0, 0, 0}},
+        /* the quinto: a conga 9 semitones up (264 Hz), a bit more slap */
+        {DVT_CONGA, 53, 963, 80, 2258, {0, 50, 1600, 0, 2600, 0, 0, 0, 0, 0, 0, 0, 0}},
+        /* the campana: 80's bell, squares 540 / 800 Hz */
+        {DVT_BELL, 50, 1161, 252, 2697, {109, 129, 3413, 30000, 45, 0, 0, 0, 0, 0, 0, 0, 0}},
+    },
+    {   /* HANAN (Cumbia): recorded hits, DVR_PCM (v0 the sample, CPCM; p16 the pitch it plays at TUNE 64, tau0 / oct16
+         * the fade DECAY below 64 puts on it; 64 and above: the whole hit). Hanan Cumbia's bombo, güiro, conga and
+         * campana (CC BY-SA 3.0), the TR-727 timbal, maracas, cabasa and quinto of Compas (GPL-3.0):
+         * assets/samples-cumbia/README.md */
+        {DVR_PCM, 80, 960, 400, 5972, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* KICK  bombo */
+        {DVR_PCM, 80, 960, 300, 7694, {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* TIMBL 727 high timbale */
+        {DVR_PCM, 80, 960, 100, 9910, {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* MARAC 727 maracas */
+        {DVR_PCM, 80, 960, 200, 1889, {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* GUIRO */
+        {DVR_PCM, 80, 960, 120, 6040, {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* CABAS 727 cabasa */
+        {DVR_PCM, 80, 960, 350, 6470, {5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* CONGA */
+        {DVR_PCM, 80, 960, 150, 4745, {6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* QUINT 727 open high conga */
+        {DVR_PCM, 80, 960, 400, 3810, {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* CAMPN campana */
     },
 };
 
@@ -536,6 +570,19 @@ static void dv_setup_kit(dv_coef_t *c, const dv_param_t *p)
     c->metal = (int16_t)p16;
     c->out = (int32_t)(K->gain * (uint32_t)p->level / 127u);
     c->out += (c->out * acc * DV_KIT_ACC[kit]) >> 14;
+    if (K->run == DVR_PCM) {                             /* (Cumbia) a recorded hit */
+        uint32_t sm = (uint32_t)v[0] % CPCM_N, e2 = dv_exp2((uint32_t)(dp < 0 ? -dp : dp) * 4096u / 192u);
+        uint32_t ratio = dp >= 0 ? e2 : 0xFFFFFFFFu / e2;   /* Q16, x0.5 .. x2 */
+        c->inc[0] = ratio * CPCM[sm].rate / FS;          /* Q16 samples of the recording per output sample */
+        c->span[0] = CPCM[sm].off;
+        c->span[1] = CPCM[sm].len;
+        c->kb[0] = d >= 64u ? 65535u : dv_kb(tau);       /* DECAY under 64: a fade, the whole hit above */
+        c->kb[1] = dv_kb(5000);                          /* a choke */
+        c->hp = tn >= 64u ? 32768 : dv_pole(1335 + (int32_t)tn * 12);   /* TONE under 64: a low-pass, 1 .. 16 kHz */
+        c->g[0] = (int32_t)x * 1024 - 65536;             /* SNAP: the attack, x0 .. x2 at the start (64: as recorded), */
+        c->k[0] = dv_k(15000);                           /* back to x1 with a 15 ms tau */
+        return;
+    }
     switch (K->run) {
     case DVT_PUNCH: {
         int32_t b = dv_at(v[0], tn) + (tn > 64u ? (int32_t)tn - 64 : 0);   /* (TONE above 64: +4 semitones more) */
@@ -889,6 +936,40 @@ static __attribute__((noinline)) void dv_metal_mix(const dv_coef_t *c, dv_voice_
         y[i] = (m[i] * gm + DV_NOISE(v) * gn) >> 15;
 }
 
+/* (Cumbia) a recorded hit: mu-law samples read at inc (linear between them), a one-pole low-pass (TONE), the fade
+ * (DECAY under 64) or a choke per block, ramped. ph[0] the position (Q16), q[0] the level (Q30), s[0] the filter */
+static __attribute__((noinline)) void dv_pcm_run(const dv_coef_t *c, dv_voice_t *v, int32_t *y, uint32_t n)
+{
+    const uint8_t *d = CPCM_DATA + c->span[0];
+    uint32_t i, pos = v->ph[0], len = c->span[1], kb = v->choke ? c->kb[1] : c->kb[0];
+    int32_t q0 = v->q[0], q1 = (int32_t)(((uint32_t)q0 >> 14) * kb >> 2), lp = v->s[0], a = c->hp, sn = v->s[1];
+    for (i = 0; i < n; i++) {
+        uint32_t k = pos >> 16;
+        int32_t s0, s1, x, e;
+        if (k + 1u >= len) {
+            v->live = 0;
+            for (; i < n; i++)
+                y[i] = 0;
+            break;
+        }
+        s0 = CPCM_ULAW[d[k]];
+        s1 = CPCM_ULAW[d[k + 1u]];
+        x = s0 + (((s1 - s0) * (int32_t)((pos >> 1) & 0x7FFFu)) >> 15);
+        lp += ((x - lp) * a) >> 15;
+        e = (q0 >> 15) + ((((q1 >> 15) - (q0 >> 15)) * (int32_t)i) / (int32_t)n);   /* Q15 */
+        e = (e * ((65536 + sn) >> 2)) >> 14;             /* SNAP's attack (32-bit products) */
+        sn = ((sn >> 1) * (int32_t)c->k[0]) >> 14;
+        y[i] = (lp * e) >> 15;
+        pos += c->inc[0];
+    }
+    v->ph[0] = pos;
+    v->q[0] = q1;
+    v->s[0] = lp;
+    v->s[1] = sn;
+    if (q1 < DV_QUIET)
+        v->live = 0;
+}
+
 /* ------------------------------------------------------------------- the API --- */
 static void dv_init(dv_voice_t *v, uint32_t type)
 {
@@ -924,6 +1005,9 @@ static void dv_strike(const dv_coef_t *c, dv_voice_t *v)
         break;
     case DVT_CYM:
         v->q[1] = 1 << 30;
+        break;
+    case DVR_PCM:
+        v->s[1] = c->g[0];                               /* SNAP's attack */
         break;
     }
 }
@@ -983,6 +1067,9 @@ static void dv_run(const dv_coef_t *c, dv_voice_t *v, const int32_t *metal, int3
         break;
     case DVT_BELL:
         dv_bell_run(c, v, y, n);
+        break;
+    case DVR_PCM:
+        dv_pcm_run(c, v, y, n);
         break;
     default:
         dv_cym_run(c, v, metal, y, n);

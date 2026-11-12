@@ -438,7 +438,8 @@ static int test_sound_loads(void)
                  preset_pat_hint() == 12 && ui.ppick == 12 && str_eq(PATTERNS[12].name, "ARP"));
     t->p[P_AMODE] = 2;
     before = *t;
-    for (i = 0; i < 6u; i++)                      /* several loads, into the next engine */
+    /* several loads, into the next engine (6 before Cumbia's ANALOG presets) */
+    for (i = 0; i < ENGINES[0]->npresets - before.preset; i++)
         turn(EN_PRESET, 1);
     bad += check("browsing on, into another engine: the steps still untouched", t->eng_req != before.eng_req &&
                  !memcmp(t->step, before.step, sizeof t->step) && t->p[P_AMODE] == 2);
@@ -642,7 +643,7 @@ static int test_patterns(void)
     t->p[P_SSWING] = 0;
     up_store(6, "NOPAT");
     memset(up_rec(6)->note, 0, sizeof up_rec(6)->note);   /* .. a record with no pattern: not listed */
-    bad += check("user presets with a pattern are listed after the factory ones", pat_count() == NPATTERNS + 1u);
+    bad += check("user presets with a pattern are listed after the factory ones", pat_count() == NFACT_PAT + 1u);
     track_defaults_steps(t);
     turn(EN_K1, 20);                              /* (to the end of the list) */
     press(B_OCTUP);

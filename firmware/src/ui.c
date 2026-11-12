@@ -1212,7 +1212,7 @@ static void track_defaults_steps(track_t *t)
  * a user preset's pattern brings its stored LEN (at most 16), DIV, SWING and GATE too. The notes are
  * loaded as they are: the patterns are written for the register of their kind of sound, DRUM and
  * SLICE patterns are drum and slice numbers, and SCL TRANS / OCT transpose what plays */
-static uint32_t pat_count(void) { return NPATTERNS + up_pat_count(); }
+static uint32_t pat_count(void) { return NFACT_PAT + up_pat_count(); }
 
 static void pat_label(uint32_t n, char *tag, char *name)   /* tag: 4 bytes ("01", "U07"), name: 13 */
 {
@@ -1221,8 +1221,13 @@ static void pat_label(uint32_t n, char *tag, char *name)   /* tag: 4 bytes ("01"
         tag[1] = (char)('0' + (n + 1u) % 10u);
         tag[2] = 0;
         str_cpy(name, PATTERNS[n].name, 13);
+    } else if (n < NFACT_PAT) {                       /* (Cumbia) a groove */
+        tag[0] = (char)('0' + (n + 1u) / 10u);
+        tag[1] = (char)('0' + (n + 1u) % 10u);
+        tag[2] = 0;
+        str_cpy(name, GROOVES[n - NPATTERNS].name, 13);
     } else {
-        uint32_t k = up_pat_nth(n - NPATTERNS);
+        uint32_t k = up_pat_nth(n - NFACT_PAT);
         up_slot_label(tag, k);
         up_name(k, name);
     }
@@ -1231,10 +1236,17 @@ static void pat_label(uint32_t n, char *tag, char *name)   /* tag: 4 bytes ("01"
 static void pat_load(track_t *t, uint32_t n)
 {
     load_begin(t, UNDO_PAT);
-    if (n < NPATTERNS)
+    if (n < NPATTERNS) {
         load_pat16(t, PATTERNS[n].note, PATTERNS[n].flags);
-    else
-        up_pat_load(t, up_pat_nth(n - NPATTERNS));
+        if (phrase_gate(n))                         /* (Cumbia) its short notes */
+            t->p[P_SGATE] = (int16_t)phrase_gate(n);
+    } else if (n < NFACT_PAT)
+    {
+        load_grid16(t, GROOVES[n - NPATTERNS].hit, GROOVES[n - NPATTERNS].acc);
+        t->p[P_SSWING] = 0;                         /* (Cumbia) the groove's swing is the song's: one feel for all */
+        song.g[G_SWING] = GROOVES[n - NPATTERNS].swing;
+    } else
+        up_pat_load(t, up_pat_nth(n - NFACT_PAT));
     pat_sig[trk_index(t)] = steps_sig(t);
     pat_last[trk_index(t)] = (uint8_t)(n + 1u);
     pat_from[trk_index(t)] = 0;                     /* (a phrase: no PROJECT slot) */
@@ -1382,6 +1394,9 @@ static void apply_preset_to(track_t *t, uint32_t pi)
         const preset_t *pr = &e->presets[pi];
         for (i = 0; i < 4u; i++)
             t->p[P_DIST + i] = (int16_t)(pr->fx[i] ? pr->fx[i] - 1 : FX_DEF[i]);
+        if (pr->xp)                                   /* (Cumbia) the rest it sets: LFO, glide, voice mode.. */
+            for (i = 0; pr->xp[i] >= 0 && pr->xp[i] < P_E0; i += 2u)
+                t->p[pr->xp[i]] = (int16_t)param_fit(&TP[pr->xp[i]], pr->xp[i + 1u]);
     }
     fm6_track_loaded(t);                              /* FM6: the preset's patch (its SLOT) */
     load_end(t);
@@ -1646,11 +1661,11 @@ static int32_t preset_pat_hint(void)
     const engine_t *e = ENGINES[TSEL->eng_req % NENGINES];
     uint32_t u = user_of(TSEL);
     if (u < UP_SLOTS)
-        return up_has_pat(u) ? (int32_t)(NPATTERNS + up_pat_rank(u)) : -1;
+        return up_has_pat(u) ? (int32_t)(NFACT_PAT + up_pat_rank(u)) : -1;
     if (!e->npresets)
         return -1;
     u = e->presets[TSEL->preset % e->npresets].pat;
-    return u && u <= NPATTERNS ? (int32_t)u - 1 : -1;
+    return u && u <= NFACT_PAT ? (int32_t)u - 1 : -1;
 }
 
 static void preset_hinted(void)                     /* after a sound load: SAVE > PHRASES starts at the suggested pattern */

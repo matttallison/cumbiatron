@@ -31,3 +31,9 @@ thanks the work below; each keeps its own licence (see [LICENSE](LICENSE), [LICE
   [gospodindilly-ops](https://github.com/gospodindilly-ops) (the second core, #247),
   [bonszaimusic](https://www.youtube.com/@bonszaimusic) / [fgunited](https://github.com/fgunited)
   (external MIDI-clock sequencer and ARP phase drift fix, #269; TRS MIDI clock timestamping under CC load, #258)
+
+## Cumbia fork
+
+- Hanan Cumbia samples (bombo, güiro, conga, campana): Oficina de Sonido, https://hanancumbia.oficinadesonido.org/, CC BY-SA 3.0
+- TR-727 style recordings (timbal, maracas, cabasa, quinto): Joe David Walters, Compas, https://github.com/TexasRADIO/compas-firmware, GPL-3.0-only
+- `assets/samples-cumbia/README.md` has each file's source

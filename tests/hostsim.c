@@ -103,6 +103,9 @@ static void host_preset_values(track_t *t, uint32_t e, uint32_t pi, const preset
     t->p[P_VOICE] = p->mono ? V_LEGATO : V_POLY;
     for (i = 0; i < 4u; i++)
         t->p[P_DIST + i] = (int16_t)(p->fx[i] ? p->fx[i] - 1 : FX_DEF[i]);
+    if (p->xp)                                    /* (Cumbia) LFO, glide.. (ui.c apply_preset_to) */
+        for (i = 0; p->xp[i] >= 0 && p->xp[i] < P_E0; i += 2u)
+            t->p[p->xp[i]] = (int16_t)param_fit(&TP[p->xp[i]], p->xp[i + 1u]);
     fm6_track_loaded(t);                          /* FM6: the preset's patch (ui.c apply_preset_to) */
 }
 static void host_preset_req(track_t *t, uint32_t e, uint32_t pi)

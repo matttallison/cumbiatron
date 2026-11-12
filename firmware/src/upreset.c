@@ -583,7 +583,7 @@ static void up_ui_named(uint32_t op, uint32_t k, const char *name, uint32_t cat)
     if (op == 0u) {
         up_load(k);
         if (up_has_pat(k))                              /* SAVE > PHRASES starts at its pattern */
-            ui.ppick = (uint8_t)(NPATTERNS + up_pat_rank(k));
+            ui.ppick = (uint8_t)(NFACT_PAT + up_pat_rank(k));
         ui_say("LOADED ", l);
         return;
     }

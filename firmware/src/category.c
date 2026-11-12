@@ -19,7 +19,9 @@ static uint32_t cat_of_engine(uint32_t e) { return e == 10u || e == 13u ? CAT_DR
  * only; SAMPLE's retired PERC, past SMP_NPRESETS): its engine's (cat_of_engine). tests/ui_test.c checks every string
  * against its engine's preset count. A preset's category is a hint for browsing: nothing else reads it */
 static const char *const PRESET_CAT[16] = {
-    "LPBPBKLBULLP",              /* 0 ANALOG: SAW LEAD, SOFT PAD, SQR BASS, PWM STR, ACID, SINE KEY, RAVE, SUB BASS,
+    "LPBPBKLBULLP" "LLLLPLLKKPPUBF" "BKKU",   /* + Cumbia: BUSY BOY .. MINI LEAD SAW LEAD 4, Q DUAL SAW,
+                                  * FLAUTA ZAMPONA, ACORDEON BANDONEON, the brasses, MAXI STAB, CUMBIA BAS, SIRENA, BAJO PESAD,
+                                  * FARFISA VOX ORG, GUITARRA */              /* 0 ANALOG: SAW LEAD, SOFT PAD, SQR BASS, PWM STR, ACID, SINE KEY, RAVE, SUB BASS,
                                   * PLUCK, BRASS, WIND, STRINGS */
     "",                          /* 1 DIGITAL (retired) */
     "LKPLUU",                    /* 2 PHASE: BRASS, ORGAN, STRING, RESO, BELL, WIRE */
@@ -27,11 +29,11 @@ static const char *const PRESET_CAT[16] = {
     "KKLL",                      /* 4 SAMPLE: PIANO, (PIANO: the retired TRANH's alias), FLUTE, SAX */
     "PLBF",                      /* 5 VOICE: CHOIR AAH, VOX LEAD, WOW BASS, WHISPER */
     "BLLUP",                     /* 6 TRIO: FAT BASS, ARP LEAD, SYNC LEAD, RING BELL, CHIP CHOIR */
-    "KKKKK",                     /* 7 WHEEL: the organs */
+    "KKKKK" "KKK",               /* 7 WHEEL: the organs (+ Cumbia's three) */
     "PFPP",                      /* 8 GRAIN: CLOUD PAD, GLITCH, FROZEN, SHIMMER */
     "UUUPUDDPU",                 /* 9 PHYS: BELL TREE, MARIMBA, PLUCK, BOWED METAL, KALIMBA, HAND DRUM, TOMS, DRONE
                                   * STRING, HARP */
-    "DDDD",                      /* 10 DRUM: DRUM KIT; 1.5.6: DEEP KIT, TIGHT KIT, PERC KIT */
+    "DDDDDD",                    /* 10 DRUM: DRUM KIT; 1.5.6: DEEP KIT, TIGHT KIT, PERC KIT */
     "FFFF",                      /* 11 NOISE: WIND, RAIN, ARCADE, METAL */
     "KUBLPUKU",                  /* 12 FM6: TINE EP, BELL, FM BASS, BRASS, PAD, MARIMBA, ORGAN, PLUCK */
     "DD",                        /* 13 SLICE: CHOP, STUTTER */
