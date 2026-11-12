@@ -10,8 +10,13 @@
  *         every pair (OSC 2 alone at 127)
  *   SUB   OSC 1 a saw, OSC 2 a square an octave below it (detuned by DTN in cents as before): MIX (shown SUB) is the
  *         sub oscillator's level */
-static const char *const N_ANALOG_WAVE[] = {"SAW", "SQR", "TRI", "SIN", "PWM", "SYNC", "SUB"};
-enum { AW_SYNC = 5, AW_SUB = 6 };
+static const char *const N_ANALOG_WAVE[] = {"SAW", "SQR", "TRI", "SIN", "PWM", "SYNC", "SUB", "BUSY"};
+enum { AW_SYNC = 5, AW_SUB = 6, AW_BUSY = 7 };
+/* (Cumbia) BUSY: both oscillators read the Busy Boy's single cycle (busy_wave.h, tools/gen_busy_wave.py: the harmonic
+ * recipe measured on the Korg's sound in two registers, the 3rd and 4th harmonics leading; low crossfaded to high by
+ * pitch, as its multisample's zones), the band-limited table for the pitch; DTN detunes OSC 2 in cents (the Korg's
+ * pair: 8), MIX between them, then noise, drive and the filter as every wave */
+#include "busy_wave.h"
 static const param_desc_t ANALOG_SYNC = {"SYNC", F_INT, 0, 127, 10, 0, 0};   /* DTN's range and default */
 static const param_desc_t ANALOG_SUB = {"SUB", F_PCT, 0, 127, 64, 0, 0};      /* MIX's */
 
@@ -115,6 +120,76 @@ static __attribute__((noinline)) void analog_render_x(track_t *t, voice_t *v, in
     v->s[3] = jl;
 }
 
+/* (Cumbia) WAVE BUSY: its own loop (the others' stay as they were) */
+static inline int32_t busy_read(const int16_t *w, uint32_t ph)
+{
+    uint32_t k = ph >> BUSY_SHIFT;
+    int32_t f = (int32_t)((ph >> (BUSY_SHIFT - 15)) & 0x7FFFu);
+    return w[k] + (((w[k + 1u] - w[k]) * f) >> 15);
+}
+static uint32_t busy_level(uint32_t inc)
+{
+    uint32_t hmax = 1753053061u / (inc | 1u), l;      /* the harmonics under 18 kHz (18000 / 44100 * 2^32) */
+    for (l = 0; l < BUSY_LEVELS - 1u && BUSY_HARMS[l] > hmax; l++)
+        ;
+    return l;
+}
+/* the high register's share, Q15: 0 at BUSY_LO_HZ and under, all of it at BUSY_HI_HZ and over (the multisample's
+ * two zones, crossfaded) */
+static int32_t busy_hi(uint32_t inc)
+{
+    uint32_t lo = (uint32_t)(BUSY_LO_HZ * 97391.5), hi = (uint32_t)(BUSY_HI_HZ * 97391.5);   /* Hz -> inc (2^32/FS) */
+    if (inc <= lo)
+        return 0;
+    if (inc >= hi)
+        return 32767;
+    return (int32_t)(((inc - lo) >> 8) * 32767u / ((hi - lo) >> 8));
+}
+static __attribute__((noinline)) void analog_render_busy(track_t *t, voice_t *v, int32_t *out, uint32_t n,
+                                                         const vmod_t *m)
+{
+    const int16_t *p = t->p;
+    int32_t det = p[P_E1], mix = p[P_E2], noise = p[P_E3];
+    int32_t cut = (p[P_E4] << 8) + m->cutoff + (p[P_E7] * (v->pitch16 - 60 * 16) >> 4);
+    tsvf_t flt;
+    int32_t drive = 32768 + p[P_E6] * 512;
+    int32_t m2 = mix * 258, m1 = 32767 - m2;
+    int32_t nz = noise * 200, drv = p[P_E6];
+    uint32_t ph0 = v->ph[0], ph1 = v->ph[1], inc1 = m->inc, inc2 = det ? cents_inc(m->pitch16, det, 0) : inc1, i;
+    uint32_t l1 = busy_level(inc1), l2 = busy_level(inc2);
+    const int16_t *w1 = BUSY_WAVE[0][l1], *w2 = BUSY_WAVE[0][l2], *h1 = BUSY_WAVE[1][l1], *h2 = BUSY_WAVE[1][l2];
+    int32_t g = busy_hi(inc1), gl = 32767 - g;
+    int32_t ic1 = v->s[0], ic2 = v->s[1], nst = v->s[2];
+    uint32_t ft = (uint32_t)p[P_FTYPE];
+    int32_t fk = ANALOG_K(p[P_E5]);
+    /* the Korg's decay by key (s[3]: the gain lost so far, Q16; analog_note_on clears it): per 32 samples, a
+     * block's worth at its start */
+    uint32_t key = (uint32_t)clamp(v->pitch16 >> 4, 0, 127), lost = (uint32_t)v->s[3], kd = BUSY_DECAY[key], j;
+    for (j = 0; j < n; j += 32u)
+        lost = 65536u - (((65536u - lost) * kd) >> 16);
+    int32_t kg = (int32_t)(65536u - lost) >> 1;       /* Q15 */
+    v->s[3] = (int32_t)lost;
+    tsvf_coef(&flt, cut, p[P_E5]);
+    for (i = 0; i < n; i++) {
+        int32_t a = g ? mulq15(busy_read(w1, ph0), gl) + mulq15(busy_read(h1, ph0), g) : busy_read(w1, ph0);
+        int32_t b = g ? mulq15(busy_read(w2, ph1), gl) + mulq15(busy_read(h2, ph1), g) : busy_read(w2, ph1);
+        int32_t s = mulq15(mulq15(a, m1) + mulq15(b, m2), kg);
+        ph0 += inc1;
+        ph1 += inc2;
+        if (nz)
+            s += mulq15((int32_t)(noise32(&nst) >> 17) - 16384, nz);
+        if (drv)
+            s = softclip(((s >> 2) * (drive >> 2)) >> 11);
+        s = soft_knee(analog_tap(&flt, fk, s >> 1, &ic1, &ic2, ft), 16000) * 2;
+        out[i] += voice_amp(s, m, i) * 2;
+    }
+    v->ph[0] = ph0;
+    v->ph[1] = ph1;
+    v->s[0] = ic1;
+    v->s[1] = ic2;
+    v->s[2] = nst;
+}
+
 /* WAVE 0..4 through the filter TYPE ft: analog_render's loop with ft 0 (a constant: LP, the code as it always was),
  * analog_render_f's with BP / HP (its own copy: the LP loop gains nothing) */
 static inline __attribute__((always_inline)) void analog_osc(track_t *t, voice_t *v, int32_t *out, uint32_t n,
@@ -191,7 +266,9 @@ static __attribute__((noinline)) void analog_render_f(track_t *t, voice_t *v, in
 
 static void analog_render(track_t *t, voice_t *v, int32_t *out, uint32_t n, const vmod_t *m)
 {
-    if (t->p[P_E0] >= AW_SYNC)
+    if (t->p[P_E0] == AW_BUSY)
+        analog_render_busy(t, v, out, n, m);
+    else if (t->p[P_E0] >= AW_SYNC)
         analog_render_x(t, v, out, n, m);
     else if (t->p[P_FTYPE])
         analog_render_f(t, v, out, n, m);
@@ -214,11 +291,12 @@ static const preset_t ANALOG_PRESETS[] = {
     {"STRINGS", {0, 25, 64, 0, 70, 10, 0, 32}, {70, 90, 115, 90}, 5, 0, FX(0, 60, 20, 70), PAT(5)},
 #ifdef CUMBIA_PRESETS
     /* Cumbia (cumbia villera / editada): the keyboard sounds of the genre. XP: the host's LFO, glide and voice
-     * (firmware/src/core.h P_*): the leads have a touch of glide and a late vibrato */
-    {"BUSY BOY", {0, 14, 64, 0, 88, 24, 18, 64}, {2, 70, 110, 40}, 14, 1, FX(0, 20, 30, 26), PAT(16),
-     XP(P_GLIDE, 18, P_LRATE, 88, P_LFADE, 60, P_LD_PIT, 2)},
-    {"BUSY BOY 2", {4, 10, 64, 0, 78, 44, 30, 64}, {2, 70, 110, 40}, 18, 1, FX(0, 24, 30, 26), PAT(16),
-     XP(P_GLIDE, 24, P_LRATE, 88, P_LFADE, 60, P_LD_PIT, 2)},
+     * (firmware/src/core.h P_*). BUSY BOY: WAVE BUSY, the Korg's measured waveform, two of it 8 cents apart (its
+     * beating), open, no vibrato (the player bends), the decay by key in the wave, a 0.15 s release (the
+     * multisample's); BUSY BOY 2 the same with glide and a little grit */
+    {"BUSY BOY", {7, 8, 64, 0, 127, 0, 0, 64}, {0, 64, 127, 35}, 0, 1, FX(0, 0, 18, 22), PAT(16)},
+    {"BUSY BOY 2", {7, 8, 64, 0, 100, 20, 30, 64}, {0, 64, 127, 35}, 6, 1, FX(0, 0, 24, 24), PAT(16),
+     XP(P_GLIDE, 20)},
     {"MINI LEAD", {1, 6, 64, 0, 66, 52, 10, 64}, {0, 64, 100, 36}, 30, 1, FX(0, 10, 34, 22), PAT(16),
      XP(P_GLIDE, 30, P_LRATE, 90, P_LFADE, 70, P_LD_PIT, 2)},
     {"SAW LEAD 4", {0, 22, 64, 0, 100, 12, 40, 64}, {0, 70, 115, 40}, 10, 1, FX(10, 24, 30, 24), PAT(16),
@@ -254,7 +332,7 @@ static const engine_t ENG_ANALOG = {
     .name = "ANALOG",
     .page_title = {"OSC", "FLT"},
     .edit = {
-        {"WAVE", F_ENUM, 0, 6, 0, N_ANALOG_WAVE, 0},
+        {"WAVE", F_ENUM, 0, 7, 0, N_ANALOG_WAVE, 0},
         {"DTN", F_INT, 0, 127, 10, 0, "ct"},
         {"MIX", F_PCT, 0, 127, 64, 0, 0},
         {"NOIS", F_PCT, 0, 127, 0, 0, 0},
