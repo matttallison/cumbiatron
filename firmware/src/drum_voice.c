@@ -76,8 +76,8 @@ enum {
 };
 /* a lane of a model kit as a type: the kit (1..DV_NKIT) in the high 4 bits, the lane in the low 3 (Felucca's own
  * types: 0 above). Its run (the DVT_* it plays through) is the kit's (DV_KIT) */
-#define DV_NKIT 10                                       /* (1.5.6, #216: DEEP TIGHT PERC after 77; Cumbia: CUMB HANAN) */
-#define DVR_PCM 15                                       /* (Cumbia) a model kit lane's run: a recorded hit (CPCM, HANAN) */
+#define DV_NKIT 10                                       /* (1.5.6, #216: DEEP TIGHT PERC after 77; Cumbia: CUMB LATIN) */
+#define DVR_PCM 15                                       /* (Cumbia) a model kit lane's run: a recorded hit (CPCM, LATIN) */
 #include "cumbia_pcm.h"                                  /* (build/gen: tools/gen_cumbia_pcm.py) */
 #define DV_KITOF(t) ((uint32_t)(t) >> 4)
 #define DV_KTYPE(kit, lane) ((uint8_t)(((kit) << 4) | (lane)))
@@ -332,8 +332,8 @@ static const dv_kit_t DV_KIT[DV_NKIT][DV_NLANE] = {
         /* 66's bell: sines 830 / 613 Hz */
         {DVT_RIM, 40, 1280, 60, 3629, {-84, 30000, 7500, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
     },
-    {   /* CUMB (Cumbia): kick, timbal, clap, güiro and its long scrape, tumba and quinto congas, campana. After
-         * HananCumbia's four (kick, güiro, cowbell, conga with pitch: TUNE moves them) */
+    {   /* CUMB (Cumbia): kick, timbal, clap, güiro and its long scrape, tumba and quinto congas, campana (TUNE moves
+         * them all, the conga and the campana as a cumbia machine plays them) */
         /* 66's kick: 64 Hz, a slow rise */
         {DVT_PUNCH, 64, 570, 119, 4353, {0, 100, 0, 0, 0, 0, 0, 4096, 40, 0, 0, 0, 0}},
         /* the timbal: shells 450 / 640 Hz, a ring, less noise than a snare, tau 20 ms */
@@ -351,18 +351,18 @@ static const dv_kit_t DV_KIT[DV_NKIT][DV_NLANE] = {
         /* the campana: 80's bell, squares 540 / 800 Hz */
         {DVT_BELL, 50, 1161, 252, 2697, {109, 129, 3413, 30000, 45, 0, 0, 0, 0, 0, 0, 0, 0}},
     },
-    {   /* HANAN (Cumbia): recorded hits, DVR_PCM (v0 the sample, CPCM; p16 the pitch it plays at TUNE 64, tau0 / oct16
-         * the fade DECAY below 64 puts on it; 64 and above: the whole hit). Hanan Cumbia's bombo, güiro, conga and
-         * campana (CC BY-SA 3.0), the TR-727 timbal, maracas, cabasa and quinto of Compas (GPL-3.0):
-         * assets/samples-cumbia/README.md */
-        {DVR_PCM, 80, 960, 400, 5972, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* KICK  bombo */
-        {DVR_PCM, 80, 960, 300, 7694, {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* TIMBL 727 high timbale */
-        {DVR_PCM, 80, 960, 100, 9910, {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* MARAC 727 maracas */
-        {DVR_PCM, 80, 960, 200, 1889, {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* GUIRO */
-        {DVR_PCM, 80, 960, 120, 6040, {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* CABAS 727 cabasa */
-        {DVR_PCM, 80, 960, 350, 6470, {5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* CONGA */
-        {DVR_PCM, 80, 960, 150, 4745, {6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* QUINT 727 open high conga */
-        {DVR_PCM, 80, 960, 400, 3810, {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},     /* CAMPN campana */
+    {   /* LATIN (Cumbia): recorded hits where there are recordings, DVR_PCM (v0 the sample, CPCM; p16 the pitch it plays
+         * at TUNE 64, tau0 / oct16 the fade DECAY below 64 puts on it; 64 and above: the whole hit): the TR-727-style
+         * timbal, maracas, cabasa and congas Joe David Walters recorded for Compas (GPL-3.0,
+         * assets/samples-cumbia/README.md); the kick, the güiro and the campana CUMB's, synthesized */
+        {DVT_PUNCH, 64, 570, 119, 4353, {0, 100, 0, 0, 0, 0, 0, 4096, 40, 0, 0, 0, 0}},           /* KICK  66's */
+        {DVR_PCM, 80, 960, 300, 7694, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},                 /* TIMBL high timbale */
+        {DVR_PCM, 80, 960, 100, 9910, {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},                 /* MARAC maracas */
+        {DVT_HATC, 45, 1777, 150, 5930, {1777, 1400, 1740, 2042, 0, 0, 9000, 3, 6, 0, 0, 0, 0}},  /* GUIRO CUMB's */
+        {DVR_PCM, 80, 960, 120, 6040, {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},                 /* CABAS cabasa */
+        {DVR_PCM, 80, 960, 350, 8220, {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},                 /* CONGA low conga */
+        {DVR_PCM, 80, 960, 150, 4745, {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},                 /* QUINT open high conga */
+        {DVT_BELL, 50, 1161, 252, 2697, {109, 129, 3413, 30000, 45, 0, 0, 0, 0, 0, 0, 0, 0}},     /* CAMPN CUMB's */
     },
 };
 

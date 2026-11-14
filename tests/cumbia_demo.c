@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Cumbia demos: the firmware's own DSP and sequencer (hostsim.c), four parts playing the factory phrases and
  * grooves, to WAV. build/host/cumbia_demo OUT_DIR
- *   villera.wav   112 BPM: HANAN KIT BOMBON, BAJO PESAD, CUMBIA ORG (chords), BUSY BOY
- *   colombia.wav  100 BPM: HANAN KIT COLOMBIA, CUMBIA BAS, ACORDEON, FLAUTA
+ *   villera.wav   112 BPM: LATIN KIT BOMBON, BAJO PESAD, CUMBIA ORG (chords), PIBE LEAD
+ *   colombia.wav  100 BPM: LATIN KIT COLOMBIA, CUMBIA BAS, ACORDEON, FLAUTA
  *   amazonia.wav  100 BPM: CUMBIA KIT AMAZONIA, CUMBIA BAS, FARFISA, GUITARRA
  *   presets.wav   every Cumbia preset in turn on the lead phrase (ANALOG, WHEEL), then the two kits' lanes */
 #define main hostsim_main
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 {
     const char *dir = argc > 1 ? argv[1] : ".";
     uint32_t p, i;
-    song4(dir, "villera.wav", 112, 5, 0, 26, 7, 5, 12);       /* BOMBON, BAJO PESAD, CUMBIA ORG, BUSY BOY */
+    song4(dir, "villera.wav", 112, 5, 0, 26, 7, 5, 12);       /* BOMBON, BAJO PESAD, CUMBIA ORG, PIBE LEAD */
     song4(dir, "colombia.wav", 100, 5, 2, 24, 0, 19, 17);     /* COLOMBIA, CUMBIA BAS, ACORDEON, FLAUTA */
     song4(dir, "amazonia.wav", 100, 4, 5, 24, 0, 27, 29);     /* AMAZONIA, CUMBIA BAS, FARFISA, GUITARRA */
     song.g[G_SWING] = 0;
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
             run_for(0.5);
             input_off(t, DRUM_LANE_NOTE[i]);
         }
-        groove(t, p == 4u ? 1u : 0u);              /* CUMB: VILLERA, HANAN: BOMBON */
+        groove(t, p == 4u ? 1u : 0u);              /* CUMB: VILLERA, LATIN: BOMBON */
         transport_req = 1;
         run_for(2 * 4 * 60.0 / 100);
         transport_req = 2;

@@ -34,6 +34,5 @@ thanks the work below; each keeps its own licence (see [LICENSE](LICENSE), [LICE
 
 ## Cumbia fork
 
-- Hanan Cumbia samples (bombo, güiro, conga, campana): Oficina de Sonido, https://hanancumbia.oficinadesonido.org/, CC BY-SA 3.0
-- TR-727 style recordings (timbal, maracas, cabasa, quinto): Joe David Walters, Compas, https://github.com/TexasRADIO/compas-firmware, GPL-3.0-only
+- TR-727 style recordings (timbal, maracas, cabasa, low and high congas): Joe David Walters, Compas, https://github.com/TexasRADIO/compas-firmware, GPL-3.0-only
 - `assets/samples-cumbia/README.md` has each file's source

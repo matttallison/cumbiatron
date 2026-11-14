@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* (Cumbia) the BUSY BOY preset against the measured Busy Boy: held notes through the firmware's own ANALOG voice
+/* (Cumbia) the PIBE LEAD preset against the measured Busy Boy: held notes through the firmware's own ANALOG voice
  * (hostsim.c), to WAV, for tools/busy_match.py. build/host/busy_match OUT.wav PRESET NOTE [NOTE..] */
 #define main hostsim_main
 #include "hostsim.c"

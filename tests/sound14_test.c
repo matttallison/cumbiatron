@@ -400,10 +400,10 @@ static void test_analog(void)
     uint32_t from = FS / 10u, lag;
     char msg[160];
 
-    check("ANALOG WAVE: SAW .. PWM where they were, SYNC 5 SUB 6 appended (Cumbia: BUSY 7 after), default SAW",
+    check("ANALOG WAVE: SAW .. PWM where they were, SYNC 5 SUB 6 appended (Cumbia: PIBE 7 after), default SAW",
           e->edit[0].max == 7 && e->edit[0].def == 0 && str_eq(e->edit[0].names[4], "PWM") &&
           str_eq(e->edit[0].names[5], "SYNC") && str_eq(e->edit[0].names[6], "SUB") &&
-          str_eq(e->edit[0].names[7], "BUSY"));
+          str_eq(e->edit[0].names[7], "PIBE"));
     fresh(0, 0);
     t->p[P_E0] = 5;
     check("labels: SYNC shows DTN as SYNC, SUB MIX as SUB; the others as before",

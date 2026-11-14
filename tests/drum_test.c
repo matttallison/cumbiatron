@@ -890,7 +890,7 @@ static void cost(void)
 }
 
 /* --------------------------------------------------------- the model kits --- */
-static const char *const KITN[DV_NKIT] = {"80", "10", "66", "55", "77", "DEEP", "TIGHT", "PERC", "CUMB", "HANAN"};
+static const char *const KITN[DV_NKIT] = {"80", "10", "66", "55", "77", "DEEP", "TIGHT", "PERC", "CUMB", "LATIN"};
 static const char *const LANEN[DV_NLANE] = {"KICK", "SNARE", "CLAP", "HATCL", "HATOP", "TOM", "RIM", "BELL"};
 #define KLEN (FS * 6u)
 
@@ -916,12 +916,12 @@ static const float KTGT[DV_NKIT][DV_NLANE][2] = {
      {0.500, 13024}, {0.200, 3480}, {0.010, 2421}, {0.220, 1590}},
     {{0.620, 1863}, {0.120, 4518}, {0.230, 5906}, {0.210, 9473},   /* PERC: 10 77 77 66 66 66 77 66 */
      {0.270, 9422}, {0.110, 1379}, {0.110, 3517}, {0.050, 1274}},
-    /* Cumbia: CUMB (66's kick, a timbal, 80's clap, a güiro and its scrape, two congas, 80's bell) and HANAN (recorded:
-     * Hanan Cumbia's bombo güiro conga campana, Compas's 727 timbal maracas cabasa quinto): measured */
+    /* Cumbia: CUMB (66's kick, a timbal, 80's clap, a güiro and its scrape, two congas, 80's bell) and LATIN (recorded: Compas's
+     * 727 timbal maracas cabasa congas; CUMB's kick güiro campana): measured */
     {{0.180, 505}, {0.140, 9340}, {0.150, 4339}, {0.140, 7528},     /* CUMB */
      {0.580, 7536}, {0.110, 1379}, {0.090, 2064}, {0.220, 1590}},
-    {{0.520, 1090}, {0.410, 3494}, {0.060, 9060}, {0.260, 3747},    /* HANAN */
-     {0.110, 8133}, {0.520, 904}, {0.140, 2380}, {0.620, 2116}},
+    {{0.180, 505}, {0.410, 3494}, {0.060, 9060}, {0.140, 7528},     /* LATIN */
+     {0.110, 8133}, {0.300, 1918}, {0.140, 2380}, {0.220, 1590}},
 };
 static const float KLVL[DV_NLANE] = {-14.5f, -18.2f, -24.2f, -27.4f, -23.8f, -13.6f, -22.5f, -21.0f};
 
@@ -1276,7 +1276,7 @@ static uint64_t seq_hash(const uint8_t (*ev)[3], uint32_t nev, uint32_t frames, 
 static void retired(void)
 {
     static const uint8_t MAP[4] = {DK_STD, DK_66, DK_10, DK_77};
-    static const uint8_t ORDER[11] = {DK_STD, DK_80, DK_10, DK_66, DK_55, DK_77, DK_DEEP, DK_TIGHT, DK_PERC, DK_CUMB, DK_HANAN};
+    static const uint8_t ORDER[11] = {DK_STD, DK_80, DK_10, DK_66, DK_55, DK_77, DK_DEEP, DK_TIGHT, DK_PERC, DK_CUMB, DK_LATIN};
     const param_desc_t *d = &ENG_DRUM.edit[0];
     uint32_t r, n, k, bad = 0, same = 0;
     int16_t kick;
@@ -1317,16 +1317,16 @@ static void retired(void)
     }
     {
         int32_t v = DK_STD, i;
-        for (i = 0; i < 11; i++) {                      /* STD 80 10 66 55 77 DEEP TIGHT PERC (Cumbia: CUMB HANAN), then held */
+        for (i = 0; i < 11; i++) {                      /* STD 80 10 66 55 77 DEEP TIGHT PERC (Cumbia: CUMB LATIN), then held */
             bad += v != ORDER[i];
             v = param_turn(d, v, 1);
         }
-        bad += v != DK_HANAN || param_turn(d, DK_80, -1) != DK_STD || param_turn(d, DK_STD, -1) != DK_STD;
+        bad += v != DK_LATIN || param_turn(d, DK_80, -1) != DK_STD || param_turn(d, DK_STD, -1) != DK_STD;
     }
     for (r = 1; r < 4u; r++)
         bad += strcmp(d->names[r], d->names[MAP[r]]) != 0 || enum_orig(d, (int32_t)r) != MAP[r] ||
                param_fit(d, (int32_t)r) != MAP[r];
-    bad += param_fit(d, 99) != DK_HANAN || param_fit(d, -5) != DK_STD || enum_orig(d, DK_55) != DK_55;
+    bad += param_fit(d, 99) != DK_LATIN || param_fit(d, -5) != DK_STD || enum_orig(d, DK_55) != DK_55;
     bad += param_fit(&TP[P_LEVEL], 77) != 77;
     {   /* a motion event of KIT 2 (CYM): stored and played as 10 */
         host_tracks_init();

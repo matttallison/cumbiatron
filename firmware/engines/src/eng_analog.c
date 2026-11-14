@@ -10,9 +10,10 @@
  *         every pair (OSC 2 alone at 127)
  *   SUB   OSC 1 a saw, OSC 2 a square an octave below it (detuned by DTN in cents as before): MIX (shown SUB) is the
  *         sub oscillator's level */
-static const char *const N_ANALOG_WAVE[] = {"SAW", "SQR", "TRI", "SIN", "PWM", "SYNC", "SUB", "BUSY"};
+static const char *const N_ANALOG_WAVE[] = {"SAW", "SQR", "TRI", "SIN", "PWM", "SYNC", "SUB", "PIBE"};
 enum { AW_SYNC = 5, AW_SUB = 6, AW_BUSY = 7 };
-/* (Cumbia) BUSY: both oscillators read the Busy Boy's single cycle (busy_wave.h, tools/gen_busy_wave.py: the harmonic
+/* (Cumbia) PIBE: the cumbia villera lead (in the style of the 90s Korg workstations' "Busy Boy" program): both
+ * oscillators read its single cycle (busy_wave.h, tools/gen_busy_wave.py: the harmonic
  * recipe measured on the Korg's sound in two registers, the 3rd and 4th harmonics leading; low crossfaded to high by
  * pitch, as its multisample's zones), the band-limited table for the pitch; DTN detunes OSC 2 in cents (the Korg's
  * pair: 8), MIX between them, then noise, drive and the filter as every wave */
@@ -120,7 +121,7 @@ static __attribute__((noinline)) void analog_render_x(track_t *t, voice_t *v, in
     v->s[3] = jl;
 }
 
-/* (Cumbia) WAVE BUSY: its own loop (the others' stay as they were) */
+/* (Cumbia) WAVE PIBE: its own loop (the others' stay as they were) */
 static inline int32_t busy_read(const int16_t *w, uint32_t ph)
 {
     uint32_t k = ph >> BUSY_SHIFT;
@@ -291,11 +292,11 @@ static const preset_t ANALOG_PRESETS[] = {
     {"STRINGS", {0, 25, 64, 0, 70, 10, 0, 32}, {70, 90, 115, 90}, 5, 0, FX(0, 60, 20, 70), PAT(5)},
 #ifdef CUMBIA_PRESETS
     /* Cumbia (cumbia villera / editada): the keyboard sounds of the genre. XP: the host's LFO, glide and voice
-     * (firmware/src/core.h P_*). BUSY BOY: WAVE BUSY, the Korg's measured waveform, two of it 8 cents apart (its
+     * (firmware/src/core.h P_*). PIBE LEAD: WAVE PIBE, the measured waveform of that lead, two of it 8 cents apart (its
      * beating), open, no vibrato (the player bends), the decay by key in the wave, a 0.15 s release (the
-     * multisample's); BUSY BOY 2 the same with glide and a little grit */
-    {"BUSY BOY", {7, 8, 64, 0, 127, 0, 0, 64}, {0, 64, 127, 35}, 0, 1, FX(0, 0, 18, 22), PAT(16)},
-    {"BUSY BOY 2", {7, 8, 64, 0, 100, 20, 30, 64}, {0, 64, 127, 35}, 6, 1, FX(0, 0, 24, 24), PAT(16),
+     * multisample's); PIBE LEAD2 the same with glide and a little grit */
+    {"PIBE LEAD", {7, 8, 64, 0, 127, 0, 0, 64}, {0, 64, 127, 35}, 0, 1, FX(0, 0, 18, 22), PAT(16)},
+    {"PIBE LEAD2", {7, 8, 64, 0, 100, 20, 30, 64}, {0, 64, 127, 35}, 6, 1, FX(0, 0, 24, 24), PAT(16),
      XP(P_GLIDE, 20)},
     {"MINI LEAD", {1, 6, 64, 0, 66, 52, 10, 64}, {0, 64, 100, 36}, 30, 1, FX(0, 10, 34, 22), PAT(16),
      XP(P_GLIDE, 30, P_LRATE, 90, P_LFADE, 70, P_LD_PIT, 2)},

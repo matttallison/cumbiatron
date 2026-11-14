@@ -27,7 +27,7 @@ enum { CB_QS, CB_TRAD, CB_TUMB, CB_NORT, CB_VALL };    /* the bass's half-bar rh
 enum { CK_CHUCK, CK_PUMP, CK_OFF2 };                    /* the keys' */
 typedef struct {
     const char *name;
-    uint8_t bpm, swing, kit, groove;                    /* kit: DRUM's preset (4 CUMBIA KIT, 5 HANAN KIT); GROOVES[] */
+    uint8_t bpm, swing, kit, groove;                    /* kit: DRUM's preset (4 CUMBIA KIT, 5 LATIN KIT); GROOVES[] */
     uint8_t bass, brhy;                                 /* ANALOG preset, CB_* */
     uint8_t keys_e, keys_p, krhy;                       /* engine, preset, CK_* */
     uint8_t lead_e, lead_p;
@@ -36,7 +36,7 @@ typedef struct {
 #define CS_ANALOG 0u
 #define CS_WHEEL 7u
 static const cs_style_t CS_STYLE[] = {
-    {"VILLERA", 112, 0, 5, 0, 26, CB_QS, CS_WHEEL, 5, CK_CHUCK, CS_ANALOG, 12, 9, 0},     /* BOMBON, BAJO PESAD, CUMBIA ORG, BUSY BOY */
+    {"VILLERA", 112, 0, 5, 0, 26, CB_QS, CS_WHEEL, 5, CK_CHUCK, CS_ANALOG, 12, 9, 0},     /* BOMBON, BAJO PESAD, CUMBIA ORG, PIBE LEAD */
     {"COLOMBIA", 100, 22, 5, 2, 24, CB_TRAD, CS_ANALOG, 19, CK_CHUCK, CS_ANALOG, 17, 9, 0},   /* ACORDEON, FLAUTA (the gaita) */
     {"VALLENATO", 108, 15, 5, 9, 24, CB_VALL, CS_ANALOG, 20, CK_PUMP, CS_ANALOG, 19, 7, 1},  /* BANDONEON, ACORDEON leading */
     {"SONIDERA", 108, 35, 4, 4, 24, CB_TUMB, CS_ANALOG, 19, CK_CHUCK, CS_ANALOG, 14, 9, 0},  /* ACORDEON, MINI LEAD */
@@ -45,7 +45,7 @@ static const cs_style_t CS_STYLE[] = {
     {"CHICHA", 100, 12, 4, 10, 24, CB_TUMB, CS_ANALOG, 27, CK_OFF2, CS_ANALOG, 29, 4, 0},    /* FARFISA, GUITARRA */
     {"AMAZONIA", 98, 12, 4, 5, 24, CB_TUMB, CS_ANALOG, 28, CK_OFF2, CS_ANALOG, 29, 9, 0},    /* VOX ORG, GUITARRA */
     {"NORTENA", 116, 0, 5, 11, 24, CB_NORT, CS_ANALOG, 20, CK_CHUCK, CS_ANALOG, 19, 7, 1},   /* BANDONEON, ACORDEON */
-    {"DIGITAL", 118, 0, 4, 14, 26, CB_QS, CS_ANALOG, 23, CK_CHUCK, CS_ANALOG, 13, 9, 0},     /* MAXI STAB, BUSY BOY 2 */
+    {"DIGITAL", 118, 0, 4, 14, 26, CB_QS, CS_ANALOG, 23, CK_CHUCK, CS_ANALOG, 13, 9, 0},     /* MAXI STAB, PIBE LEAD2 */
 };
 #define CS_N (sizeof CS_STYLE / sizeof CS_STYLE[0])
 /* the keys E4 .. G5 (key numbers from F3, seq.c song_key's) */

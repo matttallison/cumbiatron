@@ -19,7 +19,7 @@ static uint32_t cat_of_engine(uint32_t e) { return e == 10u || e == 13u ? CAT_DR
  * only; SAMPLE's retired PERC, past SMP_NPRESETS): its engine's (cat_of_engine). tests/ui_test.c checks every string
  * against its engine's preset count. A preset's category is a hint for browsing: nothing else reads it */
 static const char *const PRESET_CAT[16] = {
-    "LPBPBKLBULLP" "LLLLPLLKKPPUBF" "BKKU",   /* + Cumbia: BUSY BOY .. MINI LEAD SAW LEAD 4, Q DUAL SAW,
+    "LPBPBKLBULLP" "LLLLPLLKKPPUBF" "BKKU",   /* + Cumbia: PIBE LEAD .. MINI LEAD SAW LEAD 4, Q DUAL SAW,
                                   * FLAUTA ZAMPONA, ACORDEON BANDONEON, the brasses, MAXI STAB, CUMBIA BAS, SIRENA, BAJO PESAD,
                                   * FARFISA VOX ORG, GUITARRA */              /* 0 ANALOG: SAW LEAD, SOFT PAD, SQR BASS, PWM STR, ACID, SINE KEY, RAVE, SUB BASS,
                                   * PLUCK, BRASS, WIND, STRINGS */

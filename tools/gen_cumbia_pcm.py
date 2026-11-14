@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""The HANAN kit's samples (DRUM engine, firmware/src/drum_voice.c) -> a C header.
+"""The LATIN kit's samples (DRUM engine, firmware/src/drum_voice.c) -> a C header.
 
   tools/gen_cumbia_pcm.py OUT.h
 
-assets/samples-cumbia/ (README.md there: sources and licences): Hanan Cumbia's four at their own rate (9804 Hz, as
-the Bleep Drum plays them), the TR-727 recordings at 22050 Hz. Each: the silence before its onset cut, at most
-MAX_S seconds (a short fade at a cut), its peak at -6 dBFS, 8-bit mu-law (G.711). The order is the lanes':
-KICK TIMBL MARAC GUIRO CABAS CONGA QUINT CAMPN (DV_KIT's HANAN row reads CPCM[v[0]]).
+assets/samples-cumbia/ (README.md there: sources and licences): the TR-727-style recordings of Compas (GPL-3.0) at
+22050 Hz. Each: the silence before its onset cut, at most MAX_S seconds (a short fade at a cut), its peak at -6 dBFS,
+8-bit mu-law (G.711). The order: TIMBL MARAC CABAS CONGA QUINT (DV_KIT's LATIN row reads CPCM[v[0]]).
 """
 import math
 import sys
@@ -19,14 +18,11 @@ from sampleio import onset, peak, read_any_wav, resample  # noqa: E402
 SRC = Path(__file__).resolve().parents[1] / "assets" / "samples-cumbia"
 # file, stored rate (0: its own), at most seconds
 SAMPLES = [
-    ("bombo-kick.wav", 0, 0.60),
     ("727-high-timbale.wav", 22050, 0.45),
     ("727-maracas.wav", 22050, 0.12),
-    ("huiro-guiro.wav", 0, 0.30),
     ("727-cabasa.wav", 22050, 0.16),
-    ("conga.wav", 0, 0.55),
+    ("727-low-conga.wav", 22050, 0.35),
     ("727-open-high-conga.wav", 22050, 0.18),
-    ("campana-cowbell.wav", 0, 0.62),
 ]
 
 
