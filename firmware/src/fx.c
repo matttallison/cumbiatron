@@ -50,7 +50,7 @@ _Static_assert(sizeof rev_comb / 2u >= SP_LEN && sizeof rev_u.sp / 4u >= 4u * (S
  * does). The send (every other sample of it, low-passed 1 2 1; ROOM's level) -> a low cut (~110 Hz: no boom
  * in a long tail) -> 2 allpass diffusers (rev_ap: a drum's click smeared into a burst) -> into the 8 lines
  * (rev_comb, mutually prime lengths, 21 .. 34 ms). Lines 1, 2, 4, 7 are read through slow sines (+-HL_MOD
- * samples, between samples; 0.37 or 0.74 Hz, each in its own phase): the resonances drift instead of ringing.
+ * samples (Cumbia: 1; 8 made held notes pulse), between samples; 0.37 or 0.74 Hz, each in its own phase): the resonances drift instead of ringing.
  * Lines 0, 3, 5, 6, read at their ends, go through a one-pole low-pass (DAMP: the mixing takes every echo
  * through them); every
  * line through its gain (from its length: all decay alike; RT60 below the damping 0.5 s at SIZE 0, 4 s at
@@ -64,7 +64,7 @@ _Static_assert(sizeof rev_comb / 2u >= SP_LEN && sizeof rev_u.sp / 4u >= 4u * (S
 #define HL_NL 8u                         /* lines */
 #define HL_NAP 2u                        /* diffusers */
 #define HL_NC (CTL / 2u)                 /* a block at half the rate */
-#define HL_MOD 8                         /* the taps' swing, samples (read 2 .. 18 samples short of the end) */
+#define HL_MOD 1                         /* the taps' swing, samples (Cumbia: 1, was 8: at 8 a held note pulsed ~8 dB) */
 #define HL_LPM 0x69u                     /* the lines with a low-pass */
 #define HL_KD(d) (32767 - (d) * 180)     /* its coefficient (Q15) for DAMP d: none at 0 .. ~1 kHz at 127 */
 #define HL_LOUD 32                       /* a line this loud (two samples' sum) rounds its gain to the nearest */
