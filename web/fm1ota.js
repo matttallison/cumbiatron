@@ -108,6 +108,15 @@ async function handshake(link, tries = 3) {
   return null;
 }
 
+// a MIDIInputMap / MIDIOutputMap as an array: iOS Web MIDI browsers' polyfills have forEach but no iterator
+function ports(map) {
+  const a = [];
+  if (!map) return a;
+  if (typeof map.forEach === "function") map.forEach((p) => a.push(p));
+  else for (const k in map) if (map[k] && typeof map[k] === "object") a.push(map[k]);
+  return a;
+}
+
 export class Updater {
   constructor(access, log) {
     this.access = access;
@@ -116,8 +125,8 @@ export class Updater {
 
   // every in/out pair with the same port name that answers the handshake
   async find(filter) {
-    const outs = [...this.access.outputs.values()];
-    for (const input of this.access.inputs.values()) {
+    const outs = ports(this.access.outputs);
+    for (const input of ports(this.access.inputs)) {
       if (input.state === "disconnected") continue;
       if (!/fm-1|felucca|ota|composite|sinco|usb-midi|sp-?404/i.test(input.name || "")) continue;   // never probe other gear (sp-404: an FM-1 firmware that names itself SP-404MKII)
       const output = outs.find((o) => o.name === input.name && o.state !== "disconnected");
