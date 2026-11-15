@@ -69,10 +69,22 @@ function parseIdentity(pkt) {
 class Link {
   constructor(input, output) {
     this.input = input; this.output = output; this.q = []; this.waiter = null;
+    // reassemble SysEx: iOS Web MIDI browsers can split one message over several events
+    // or pack several into one, so collect F0..F7 across events
+    this.buf = null; this.raw = [];
     input.onmidimessage = (ev) => {
-      if (ev.data[0] !== 0xF0) return;
-      this.q.push(Array.from(ev.data));
-      if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
+      const data = Array.from(ev.data || []);
+      if (this.raw.length < 6) this.raw.push(data.slice(0, 24).map((b) => b.toString(16).padStart(2, "0")).join(" "));
+      let got = false;
+      for (const b of data) {
+        if (b === 0xF0) { this.buf = [b]; continue; }
+        if (b >= 0xF8) continue;                       // realtime bytes may sit inside SysEx
+        if (!this.buf) continue;
+        if (b === 0xF7) { this.buf.push(b); this.q.push(this.buf); this.buf = null; got = true; continue; }
+        if (b & 0x80) { this.buf = null; continue; }   // another status byte: SysEx aborted
+        this.buf.push(b);
+      }
+      if (got && this.waiter) { const w = this.waiter; this.waiter = null; w(); }
     };
   }
   get lost() { return this.input.state === "disconnected" || this.output.state === "disconnected"; }
@@ -143,8 +155,9 @@ export class Updater {
       if (!output) continue;
       try { await input.open(); await output.open(); } catch (_) { continue; }
       const link = new Link(input, output);
-      const id = await handshake(link, 2);
+      const id = await handshake(link, 3);
       if (id && (!filter || filter(id))) return { link, id, name: input.name };
+      seen[seen.length - 1] += id ? ` [${id.text}]` : (link.raw.length ? ` [reply: ${link.raw.join(" / ")}]` : " [no reply]");
       link.close();
     }
     const msg = `MIDI ports seen: ${seen.length ? seen.join(" | ") : "none"} (outputs: ${outs.map((o) => o.name).join(", ") || "none"})`;
