@@ -63,6 +63,21 @@ jobs:
           git add -A
           git commit -q -m "build of $sha"
           git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" builds
+      - name: The web installer and editor on the gh-pages branch (GitHub Pages)
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha=$(git rev-parse --short HEAD)
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then v=${GITHUB_REF_NAME#v}; pkg="build/felucca-$v.fwsc"; else v="dev-$sha"; pkg=build/felucca.fwsc; fi
+          python3 web/make_site.py "$pkg" "$v" /tmp/site
+          touch /tmp/site/.nojekyll
+          cd /tmp/site
+          git init -q -b gh-pages
+          git config user.name "cumbia build"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "site of $sha"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" gh-pages
       - name: Tests
         run: sh tests/run_tests.sh
         continue-on-error: true
