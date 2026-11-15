@@ -292,11 +292,11 @@ static const preset_t ANALOG_PRESETS[] = {
     {"STRINGS", {0, 25, 64, 0, 70, 10, 0, 32}, {70, 90, 115, 90}, 5, 0, FX(0, 60, 20, 70), PAT(5)},
 #ifdef CUMBIA_PRESETS
     /* Cumbia (cumbia villera / editada): the keyboard sounds of the genre. XP: the host's LFO, glide and voice
-     * (firmware/src/core.h P_*). PIBE LEAD: WAVE PIBE, the measured waveform of that lead, two of it 8 cents apart (its
-     * beating), open, no vibrato (the player bends), the decay by key in the wave, a 0.15 s release (the
+     * (firmware/src/core.h P_*). PIBE LEAD: WAVE PIBE, the measured waveform of that lead, one steady oscillator, OSC 1 alone (the
+     * beating once measured was the SoundFont's bad loop, not the Korg), open, no vibrato (the player bends), the decay by key in the wave, a 0.15 s release (the
      * multisample's); PIBE LEAD2 the same with glide and a little grit */
-    {"PIBE LEAD", {7, 8, 64, 0, 127, 0, 0, 64}, {0, 64, 127, 35}, 0, 1, FX(0, 0, 18, 22), PAT(16)},
-    {"PIBE LEAD2", {7, 8, 64, 0, 100, 20, 30, 64}, {0, 64, 127, 35}, 6, 1, FX(0, 0, 24, 24), PAT(16),
+    {"PIBE LEAD", {7, 0, 0, 0, 127, 0, 0, 64}, {0, 64, 127, 35}, 0, 1, FX(0, 0, 18, 22), PAT(16)},
+    {"PIBE LEAD2", {7, 0, 0, 0, 100, 20, 30, 64}, {0, 64, 127, 35}, 6, 1, FX(0, 0, 24, 24), PAT(16),
      XP(P_GLIDE, 20)},
     {"MINI LEAD", {1, 6, 64, 0, 66, 52, 10, 64}, {0, 64, 100, 36}, 30, 1, FX(0, 10, 34, 22), PAT(16),
      XP(P_GLIDE, 30, P_LRATE, 90, P_LFADE, 70, P_LD_PIT, 2)},
