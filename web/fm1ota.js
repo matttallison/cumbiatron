@@ -125,11 +125,21 @@ export class Updater {
 
   // every in/out pair with the same port name that answers the handshake
   async find(filter) {
-    const outs = ports(this.access.outputs);
-    for (const input of ports(this.access.inputs)) {
-      if (input.state === "disconnected") continue;
-      if (!/fm-1|felucca|ota|composite|sinco|usb-midi|sp-?404/i.test(input.name || "")) continue;   // never probe other gear (sp-404: an FM-1 firmware that names itself SP-404MKII)
-      const output = outs.find((o) => o.name === input.name && o.state !== "disconnected");
+    const ins = ports(this.access.inputs).filter((p) => p.state !== "disconnected");
+    const outs = ports(this.access.outputs).filter((p) => p.state !== "disconnected");
+    const LIKELY = /fm-1|fm1|felucca|ota|composite|sinco|usb-midi|m-?vave|sp-?404/i;
+    const SKIP = /network|session|iac|bluetooth le midi/i;
+    const stem = (n) => (n || "").toLowerCase().replace(/\b(in|out|input|output|port)\b|[^a-z0-9]/g, "");
+    const pairOf = (input) =>
+      outs.find((o) => o.name === input.name) ||
+      outs.find((o) => stem(o.name) && stem(o.name) === stem(input.name)) ||
+      (outs.length === 1 ? outs[0] : null);
+    // named matches first, then any other port (the FM-1 shows up under other names on some phones)
+    const order = [...ins.filter((i) => LIKELY.test(i.name || "")), ...ins.filter((i) => !LIKELY.test(i.name || "") && !SKIP.test(i.name || ""))];
+    const seen = [];
+    for (const input of order) {
+      const output = pairOf(input);
+      seen.push(`${input.name || "?"} -> ${output ? output.name || "?" : "(no output)"}`);
       if (!output) continue;
       try { await input.open(); await output.open(); } catch (_) { continue; }
       const link = new Link(input, output);
@@ -137,6 +147,8 @@ export class Updater {
       if (id && (!filter || filter(id))) return { link, id, name: input.name };
       link.close();
     }
+    const msg = `MIDI ports seen: ${seen.length ? seen.join(" | ") : "none"} (outputs: ${outs.map((o) => o.name).join(", ") || "none"})`;
+    if (msg !== this._lastSeen) { this._lastSeen = msg; this.log(msg); }
     return null;
   }
 
