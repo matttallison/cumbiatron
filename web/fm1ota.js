@@ -59,8 +59,10 @@ function parseRequest(pkt) {
 
 function parseIdentity(pkt) {
   const d = unpack7(pkt.slice(1, -1));
-  if (d.length !== 34 || d[0] !== 0 || d[1] !== 0x59 || d[2] !== 0x11) return null;
-  const txt = String.fromCharCode(...d.slice(6, 33)).replace(/\0+$/, "");
+  if (d.length < 8 || d[0] !== 0 || d[1] !== 0x59 || d[2] !== 0x11) return null;
+  const t = d.slice(6, 33), z = t.indexOf(0);
+  if (z < 0 && d.length < 34) return null;                     // cut off inside the name
+  const txt = String.fromCharCode(...(z < 0 ? t : t.slice(0, z)));
   const m = /^([^_]+)_(\d+)$/.exec(txt);
   return m ? { text: txt, model: m[1], version: parseInt(m[2], 10) } : null;
 }
@@ -74,7 +76,7 @@ class Link {
     this.buf = null; this.raw = [];
     input.onmidimessage = (ev) => {
       const data = Array.from(ev.data || []);
-      if (this.raw.length < 6) this.raw.push(data.slice(0, 24).map((b) => b.toString(16).padStart(2, "0")).join(" "));
+      if (this.raw.length < 3) this.raw.push(`${data.length}B: ` + data.slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join(" ") + " … " + data.slice(-4).map((b) => b.toString(16).padStart(2, "0")).join(" "));
       let got = false;
       for (const b of data) {
         if (b === 0xF0) { this.buf = [b]; continue; }
@@ -84,6 +86,7 @@ class Link {
         if (b & 0x80) { this.buf = null; continue; }   // another status byte: SysEx aborted
         this.buf.push(b);
       }
+      if (this.buf && data[0] === 0xF0 && this.buf.length > 2) { this.q.push([...this.buf, 0xF7]); got = true; }
       if (got && this.waiter) { const w = this.waiter; this.waiter = null; w(); }
     };
   }
